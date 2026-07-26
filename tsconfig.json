@@ -1,0 +1,25 @@
+{
+  // Editor/type-checking only. `tsxmts` (via `tsx`) does its own transpilation
+  // at runtime; nothing here is ever emitted.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "lib": ["ESNext"],
+    "allowJs": true,
+    "checkJs": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+
+    // `npm:pkg@version` imports resolve to whatever the package actually
+    // exports, which tsc can't see ahead of time — keep type-checking lenient
+    // rather than strict.
+    "strict": false,
+    "noImplicitAny": false
+  },
+  "include": ["*.mjs", "examples/**/*.mts", "test/**/*.mjs", "types/**/*.d.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 20.x is the floor (node:module's register() API needs >=20.6.0) —
+        # tested as the latest 20.x patch, not the literal 20.6.0 build,
+        # which hits a since-fixed Node bug loading extensionless ESM bin
+        # files (trips over typescript@7's `tsc` bin during `npm run
+        # typecheck`, unrelated to tsxmts's own runtime code). 22 and 24 are
+        # the current and previous LTS lines.
+        node-version: ['20', '22', '24']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run check

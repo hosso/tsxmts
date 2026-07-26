@@ -1,0 +1,48 @@
+{
+  "name": "tsxmts",
+  "version": "0.1.0",
+  "description": "tsx, no setup — run standalone .mts/.mjs scripts with on-demand npm deps.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hosso/tsxmts.git"
+  },
+  "homepage": "https://github.com/hosso/tsxmts#readme",
+  "bugs": "https://github.com/hosso/tsxmts/issues",
+  "keywords": [
+    "tsx",
+    "npm",
+    "single-file",
+    "script",
+    "dependencies",
+    "loader",
+    "module-hooks"
+  ],
+  "bin": {
+    "tsxmts": "./bin.mjs"
+  },
+  "files": [
+    "bin.mjs",
+    "hooks.mjs"
+  ],
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test",
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "prepublishOnly": "npm run check"
+  },
+  "dependencies": {
+    "tsx": "^4.23.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.5",
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}
