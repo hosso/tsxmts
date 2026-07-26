@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsxmts
+#!/usr/bin/env -S npx -y tsxmts
 // Run: ./qr.mts "https://example.com"
 //
 // Prints a scannable QR code for any string, right in the terminal. The

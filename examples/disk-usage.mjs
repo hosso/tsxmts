@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsxmts
+#!/usr/bin/env -S npx -y tsxmts
 // Run: ./disk-usage.mjs ~/Downloads
 //
 // A colored bar chart of the biggest subdirectories under a path, built on

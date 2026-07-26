@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsxmts
+#!/usr/bin/env -S npx -y tsxmts
 // Run: ./gh-repos.mts sindresorhus --limit 5
 //
 // A little "look up someone's most-starred GitHub repos" tool — the kind of

@@ -9,7 +9,7 @@ no `npm install`, no `package.json`, no `node_modules`. Just a script file you
 can drop anywhere (or send to someone else) and run.
 
 ```ts
-#!/usr/bin/env -S npx tsxmts
+#!/usr/bin/env -S npx -y tsxmts
 // hello.mts
 import pc from 'npm:picocolors@^1.1.1';
 
@@ -48,7 +48,7 @@ This is for small personal scripts and one-off tools: the kind of thing you
 npm install -g tsxmts
 ```
 
-(Or, once published, run it without installing anything via `npx tsxmts`.)
+(Or run it without installing anything via `npx tsxmts`.)
 
 ## Usage
 
@@ -61,7 +61,7 @@ Or, more in the spirit of a standalone script, give it a shebang and run it
 directly:
 
 ```ts
-#!/usr/bin/env -S npx tsxmts
+#!/usr/bin/env -S npx -y tsxmts
 ```
 
 ```sh
@@ -69,10 +69,11 @@ chmod +x your-script.mts
 ./your-script.mts
 ```
 
-`env -S` splits `npx tsxmts` back into two arguments for the kernel — this is
-the same pattern plain `tsx` scripts use (`#!/usr/bin/env -S npx tsx`), just
-with dependency resolution included. `npx` finds `tsxmts` on your `PATH` if
-it's installed globally, or fetches it transparently otherwise.
+`env -S` splits `npx -y tsxmts` back into separate arguments for the kernel —
+this is the same pattern plain `tsx` scripts use (`#!/usr/bin/env -S npx tsx`),
+just with dependency resolution included. `npx` finds `tsxmts` on your `PATH`
+if it's installed globally, or fetches it transparently otherwise; `-y` skips
+npx's "ok to install?" prompt so the script doesn't stall on first run.
 
 Both extensions run through the same pipeline (TypeScript syntax — including
 `enum`, decorators, etc. — is always transpiled via [`tsx`](https://tsx.is)),
@@ -151,7 +152,7 @@ Delete the directory any time to force a clean reinstall.
   ./examples/disk-usage.mjs ~/Downloads
   ```
 
-All three are executable and carry a `#!/usr/bin/env -S npx tsxmts` shebang, so
+All three are executable and carry a `#!/usr/bin/env -S npx -y tsxmts` shebang, so
 they run directly — no `tsxmts` prefix needed.
 
 None of the examples has a `package.json` or `node_modules` next to it — the
