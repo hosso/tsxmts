@@ -14,6 +14,11 @@ import isOdd from 'npm:is-odd@^3.0.1';
 console.log(\`isOdd(3) = \${isOdd(3)}\`);
 `;
 
+const SUBPATH_DEP_SCRIPT = `
+import { parse } from 'npm:csv-parse@^5.5.0/sync';
+console.log(JSON.stringify(parse('a,b\\n1,2')));
+`;
+
 const EXIT_CODE_SCRIPT = 'process.exit(3);\n';
 
 function run(args, { cacheDir, cwd }) {
@@ -30,8 +35,10 @@ test('CLI', async (t) => {
   const workDir = mkdtempSync(path.join(tmpdir(), 'tsxmts-test-'));
   const cacheDir = path.join(workDir, 'cache');
   const helloDepScript = path.join(workDir, 'hello-dep.mts');
+  const subpathDepScript = path.join(workDir, 'subpath-dep.mts');
   const exitCodeScript = path.join(workDir, 'exit-code.mjs');
   writeFileSync(helloDepScript, HELLO_DEP_SCRIPT);
+  writeFileSync(subpathDepScript, SUBPATH_DEP_SCRIPT);
   writeFileSync(exitCodeScript, EXIT_CODE_SCRIPT);
 
   // workDir has no node_modules of its own — this is the whole point of
@@ -59,6 +66,16 @@ test('CLI', async (t) => {
         assert.doesNotMatch(result.stderr, /installing/);
       },
     );
+
+    await t.test('resolves a subpath import (npm:pkg@version/subpath)', () => {
+      const result = run([subpathDepScript], opts);
+      assert.equal(result.status, 0);
+      assert.deepEqual(JSON.parse(result.stdout), [
+        ['a', 'b'],
+        ['1', '2'],
+      ]);
+      assert.match(result.stderr, /\[tsxmts\] installing csv-parse@\^5\.5\.0/);
+    });
 
     await t.test('propagates a non-zero exit code from the script', () => {
       const result = run([exitCodeScript], opts);

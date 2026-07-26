@@ -45,19 +45,40 @@ function ensureInstalled(name, versionSpec) {
 
 export function parseSpecifier(specifier) {
   const spec = specifier.slice(4); // strip the leading "npm:"
-  const at = spec.lastIndexOf('@');
-  const hasVersion = at > 0; // handles scoped names ("@scope/pkg") correctly
-  const name = hasVersion ? spec.slice(0, at) : spec;
-  const version = hasVersion ? spec.slice(at + 1) : 'latest';
-  return { name, version };
+
+  // The package name ends at the first "@" (version) or "/" (subpath) — but
+  // a scoped name's own "/" (between scope and package, e.g. "@scope/pkg")
+  // doesn't count, so start scanning after it.
+  const scoped = spec.startsWith('@');
+  const scanFrom = scoped ? spec.indexOf('/') + 1 : 0;
+  let boundary = spec.length;
+  for (let i = scanFrom; i < spec.length; i++) {
+    if (spec[i] === '@' || spec[i] === '/') {
+      boundary = i;
+      break;
+    }
+  }
+  const name = spec.slice(0, boundary);
+  const rest = spec.slice(boundary); // '', '@version', '@version/subpath', or '/subpath'
+
+  if (rest.startsWith('@')) {
+    const slash = rest.indexOf('/');
+    const version = slash === -1 ? rest.slice(1) : rest.slice(1, slash);
+    const subpath = slash === -1 ? '' : rest.slice(slash); // includes leading "/"
+    return { name, version, subpath };
+  }
+  return { name, version: 'latest', subpath: rest };
 }
 
 export async function resolve(specifier, context, nextResolve) {
   if (!specifier.startsWith('npm:')) return nextResolve(specifier, context);
 
-  const { name, version } = parseSpecifier(specifier);
+  const { name, version, subpath } = parseSpecifier(specifier);
 
   ensureInstalled(name, version);
   const req = createRequire(path.join(MOD_DIR, '_.js'));
-  return { url: pathToFileURL(req.resolve(name)).href, shortCircuit: true };
+  return {
+    url: pathToFileURL(req.resolve(name + subpath)).href,
+    shortCircuit: true,
+  };
 }

@@ -94,6 +94,13 @@ Scoped packages work the same way:
 import { z } from 'npm:@sindresorhus/is@^7.0.0';
 ```
 
+A package subpath (an alternate entry point declared in its `exports` map)
+comes after the version, same as Deno's `npm:` specifier:
+
+```ts
+import { parse } from 'npm:csv-parse@^5.5.0/sync';
+```
+
 Plain `import`s (`node:*`, relative paths, already-installed packages) are
 left completely untouched — only `npm:` specifiers are intercepted.
 
