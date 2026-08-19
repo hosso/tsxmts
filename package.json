@@ -24,7 +24,9 @@
   },
   "files": [
     "bin.mjs",
-    "hooks.mjs"
+    "hooks.mjs",
+    "parse-specifier.mjs",
+    "typecheck.mjs"
   ],
   "engines": {
     "node": ">=20.6.0"

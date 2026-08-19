@@ -8,16 +8,27 @@ import { pathToFileURL } from 'node:url';
 // node_modules of its own — that's the whole point of this tool.
 const require = createRequire(import.meta.url);
 
-const [firstArg] = process.argv.slice(2);
+const [firstArg, secondArg] = process.argv.slice(2);
 
 if (firstArg === undefined || firstArg === '--help' || firstArg === '-h') {
-  console.log('Usage: tsxmts <script.mts|script.mjs> [args...]');
+  console.log(
+    'Usage: tsxmts <script.mts|script.mjs> [args...]\n       tsxmts typecheck <script.mts|script.mjs>',
+  );
   process.exit(firstArg === undefined ? 1 : 0);
 }
 
 if (firstArg === '--version' || firstArg === '-v') {
   console.log(require('./package.json').version);
   process.exit(0);
+}
+
+if (firstArg === 'typecheck') {
+  if (secondArg === undefined) {
+    console.error('Usage: tsxmts typecheck <script.mts|script.mjs>');
+    process.exit(1);
+  }
+  const { typecheck } = await import('./typecheck.mjs');
+  process.exit(typecheck(secondArg));
 }
 
 const tsxEsmUrl = pathToFileURL(require.resolve('tsx/esm')).href;

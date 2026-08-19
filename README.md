@@ -55,6 +55,7 @@ npm install -g tsxmts
 ```sh
 tsxmts your-script.mts
 tsxmts your-script.mjs
+tsxmts typecheck your-script.mts  # see "Typechecking" below
 ```
 
 Or, more in the spirit of a standalone script, give it a shebang and run it
@@ -126,6 +127,26 @@ silently overwriting the other:
 - Override: set `TSXMTS_CACHE=/some/path`
 
 Delete the directory any time to force a clean reinstall.
+
+### Typechecking
+
+`tsxmts` runs `.mts` scripts via `tsx`, which transpiles but never
+typechecks — a script with type errors runs anyway. `tsc` can't typecheck an
+`npm:pkg@version` specifier directly either, since it isn't a specifier
+Node or npm understands outside of `tsxmts`'s own resolve hook.
+
+```sh
+tsxmts typecheck script.mts
+```
+
+installs the script's `npm:` dependencies into a throwaway project (rewriting
+each specifier to the plain package import `tsc` can resolve) and runs `tsc`
+against it, reporting errors against the original file. It exits non-zero on
+a type error, so it composes with CI or a pre-commit check:
+
+```sh
+tsxmts typecheck script.mts && ./script.mts
+```
 
 ## Examples
 
