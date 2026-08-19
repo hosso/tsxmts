@@ -80,6 +80,11 @@ export async function resolve(specifier, context, nextResolve) {
   if (!specifier.startsWith('npm:')) return nextResolve(specifier, context);
 
   const { name, version, subpath } = parseSpecifier(specifier);
+  if (version === 'latest') {
+    throw new Error(
+      `[tsxmts] "${specifier}" has no version — add one, e.g. npm:${name}@^1.0.0${subpath} (a version is required so the script keeps resolving the same way on every run).`,
+    );
+  }
 
   const dir = ensureInstalled(name, version);
   // Delegate to Node's ESM resolver with a parent inside the install dir so

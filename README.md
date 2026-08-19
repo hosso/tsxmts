@@ -111,12 +111,16 @@ The specifier is deliberately explicit (`npm:pkg@version`, not just `pkg`) so
 that a script keeps working the same way every time you run it, on any
 machine, without silently drifting to whatever `latest` happens to resolve to
 that day. The version also doubles as inline documentation of what the script
-depends on — no separate `package.json` to keep in sync.
+depends on — no separate `package.json` to keep in sync. Omitting the version
+(`npm:pkg`) is a hard error, not a `latest` fallback.
 
 ### Cache
 
-Packages are installed once into a shared cache directory, keyed by nothing
-but the package name — every `tsxmts` script on your machine shares it:
+Packages are installed once into a shared cache directory, keyed by package
+name **and** version range — every `tsxmts` script on your machine shares it,
+and two scripts asking for incompatible ranges of the same package (e.g.
+`npm:zod@^3` and `npm:zod@^4`) each get their own install instead of one
+silently overwriting the other:
 
 - Default: `~/.cache/tsxmts`
 - Override: set `TSXMTS_CACHE=/some/path`

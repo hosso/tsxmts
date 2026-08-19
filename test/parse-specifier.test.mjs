@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { parseSpecifier } from '../hooks.mjs';
+import { parseSpecifier, resolve } from '../hooks.mjs';
 
 test('bare name defaults to latest', () => {
   assert.deepEqual(parseSpecifier('npm:is-odd'), {
@@ -65,4 +65,22 @@ test('scoped name with a subpath and no version', () => {
     version: 'latest',
     subpath: '/utils',
   });
+});
+
+test('resolve() rejects a specifier with no version', async () => {
+  await assert.rejects(
+    resolve('npm:is-odd', {}, () => {
+      throw new Error('nextResolve should not be called');
+    }),
+    /"npm:is-odd" has no version/,
+  );
+});
+
+test('resolve() rejects an explicit @latest the same way', async () => {
+  await assert.rejects(
+    resolve('npm:is-odd@latest', {}, () => {
+      throw new Error('nextResolve should not be called');
+    }),
+    /"npm:is-odd@latest" has no version/,
+  );
 });
