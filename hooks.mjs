@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { createRequire, register } from 'node:module';
+import { register } from 'node:module';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -76,9 +76,9 @@ export async function resolve(specifier, context, nextResolve) {
   const { name, version, subpath } = parseSpecifier(specifier);
 
   ensureInstalled(name, version);
-  const req = createRequire(path.join(MOD_DIR, '_.js'));
-  return {
-    url: pathToFileURL(req.resolve(name + subpath)).href,
-    shortCircuit: true,
-  };
+  // Delegate to Node's ESM resolver with a parent inside the cache so that
+  // package `exports` maps are evaluated with the "import" condition
+  // instead of falling back to CJS-only resolution.
+  const parentURL = pathToFileURL(path.join(MOD_DIR, '_.js')).href;
+  return nextResolve(name + subpath, { ...context, parentURL });
 }
