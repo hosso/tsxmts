@@ -1,6 +1,6 @@
 {
   "name": "tsxmts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "tsx, no setup — run standalone .mts/.mjs scripts with on-demand npm deps.",
   "type": "module",
   "license": "MIT",
