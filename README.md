@@ -148,6 +148,40 @@ a type error, so it composes with CI or a pre-commit check:
 tsxmts typecheck script.mts && ./script.mts
 ```
 
+### Editor support
+
+Since a plain editor's TypeScript doesn't understand `npm:pkg@version`
+either, it reports `TS2307: Cannot find module` on every `npm:` import —
+noise `tsxmts typecheck` already accounts for. If your script lives in a
+project with its own `tsconfig.json` (rather than a standalone script with
+no project at all), install `tsxmts` as a dev dependency and add its
+Language Service Plugin to silence just that noise, without touching the
+scripts themselves:
+
+```sh
+npm install -D tsxmts
+```
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [{ "name": "tsxmts/ts-plugin" }]
+  }
+}
+```
+
+The plugin only hides `TS2307` for a string literal that's both prefixed
+with `npm:` and actually used as a module specifier (an `import`/`export`
+`from`, or a dynamic `import(...)`) — a genuinely unresolved import still
+gets flagged, and every other diagnostic (including real type errors) is
+untouched. It only changes what the editor shows; a plain `tsc` run never
+loads plugins, so `tsxmts typecheck` remains the real check.
+
+This relies on the classic TypeScript Language Service Plugin API, which
+TypeScript 7's native (Go) compiler doesn't expose yet — the plugin only
+takes effect while your editor's TypeScript is still running the classic
+(JS) implementation.
+
 ## Examples
 
 - [`examples/qr.mts`](examples/qr.mts) — the simplest shape for a `tsxmts`

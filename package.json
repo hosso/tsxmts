@@ -26,7 +26,8 @@
     "bin.mjs",
     "hooks.mjs",
     "parse-specifier.mjs",
-    "typecheck.mjs"
+    "typecheck.mjs",
+    "ts-plugin"
   ],
   "engines": {
     "node": ">=20.6.0"

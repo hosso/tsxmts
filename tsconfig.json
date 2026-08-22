@@ -20,6 +20,12 @@
     "strict": false,
     "noImplicitAny": false
   },
-  "include": ["*.mjs", "examples/**/*.mts", "test/**/*.mjs", "types/**/*.d.ts"],
+  "include": [
+    "*.mjs",
+    "examples/**/*.mts",
+    "test/**/*.mjs",
+    "ts-plugin/**/*.js",
+    "types/**/*.d.ts"
+  ],
   "exclude": ["node_modules"]
 }
