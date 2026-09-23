@@ -81,6 +81,20 @@ Both extensions run through the same pipeline (TypeScript syntax — including
 so `.mjs` files work identically to `.mts` files; the file just happens not
 to use any TypeScript syntax.
 
+A script with **no extension at all** — the shape you get distributing it as
+a plain executable, e.g. `chmod +x my-tool && mv my-tool ~/bin/my-tool` — is
+always treated as TypeScript, the same as `.mts`:
+
+```ts
+#!/usr/bin/env -S npx -y tsxmts
+// my-tool — no extension, still works
+import pc from 'npm:picocolors@^1.1.1';
+
+console.log(pc.green('it just works'));
+```
+
+`tsxmts typecheck my-tool` works the same way, no extension needed.
+
 Inside the script, import any npm package with an explicit version using the
 `npm:` specifier (matching [Deno's `npm:` specifier](https://docs.deno.com/examples/npm/)):
 
@@ -230,6 +244,12 @@ once, then resolves straight to the installed file. Everything after that —
 loading, CJS/ESM interop — is handled by Node's normal module loading, so
 default exports and interop behave exactly like a regular `node_modules`
 install.
+
+The same hook also handles the `load` step for any file with no extension —
+`tsx` tells TypeScript apart from plain JS by extension alone, so an
+extensionless file would otherwise fall through to it untranspiled;
+`tsxmts` transpiles it directly with [`esbuild`](https://esbuild.github.io)
+instead, the same way `tsx` transpiles a `.mts` file.
 
 ## Requirements
 

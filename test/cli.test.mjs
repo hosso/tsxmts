@@ -21,6 +21,11 @@ console.log(JSON.stringify(parse('a,b\\n1,2')));
 
 const EXIT_CODE_SCRIPT = 'process.exit(3);\n';
 
+const NOEXT_TS_SCRIPT = `
+const x: number = 42;
+console.log(\`noext \${x}\`);
+`;
+
 function run(args, { cacheDir, cwd }) {
   return spawnSync(bin, args, {
     cwd,
@@ -80,6 +85,14 @@ test('CLI', async (t) => {
     await t.test('propagates a non-zero exit code from the script', () => {
       const result = run([exitCodeScript], opts);
       assert.equal(result.status, 3);
+    });
+
+    await t.test('a script with no extension is treated as TypeScript', () => {
+      const script = path.join(workDir, 'noext-ts');
+      writeFileSync(script, NOEXT_TS_SCRIPT);
+      const result = run([script], opts);
+      assert.equal(result.status, 0);
+      assert.match(result.stdout, /noext 42/);
     });
 
     await t.test('prints usage and exits 1 with no arguments', () => {

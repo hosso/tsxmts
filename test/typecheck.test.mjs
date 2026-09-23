@@ -59,6 +59,34 @@ test('typecheck', async (t) => {
       },
     );
 
+    await t.test(
+      'a script with no extension is typechecked as TypeScript',
+      () => {
+        const script = path.join(workDir, 'noext-ok');
+        writeFileSync(script, 'const x: number = 1;\nconsole.log(x);\n');
+        const result = run(['typecheck', script], workDir);
+        assert.equal(result.status, 0);
+      },
+    );
+
+    await t.test(
+      'a type error in a no-extension script is reported against the original path',
+      () => {
+        const script = path.join(workDir, 'noext-bad');
+        writeFileSync(
+          script,
+          `const n: number = 'not a number';\nconsole.log(n);\n`,
+        );
+        const result = run(['typecheck', script], workDir);
+        assert.notEqual(result.status, 0);
+        assert.match(result.stdout, /error TS2322/);
+        assert.match(
+          result.stdout,
+          new RegExp(script.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+        );
+      },
+    );
+
     await t.test('an unsupported extension fails with a clear message', () => {
       const script = path.join(workDir, 'plain.ts');
       writeFileSync(script, 'const x = 1;\n');

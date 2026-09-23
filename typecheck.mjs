@@ -43,7 +43,10 @@ export function typecheck(scriptPath) {
     console.error(`[tsxmts] no such file: ${scriptPath}`);
     return 1;
   }
-  if (!SUPPORTED_EXTENSIONS.has(ext)) {
+  // An extensionless file (e.g. a `chmod +x` executable with no `.mts`
+  // suffix) is always run as TypeScript — see hooks.mjs's `load` hook —
+  // so it's checked the same way here.
+  if (ext !== '' && !SUPPORTED_EXTENSIONS.has(ext)) {
     console.error(
       `[tsxmts] typecheck only supports .mts/.mjs scripts, got: ${scriptPath}`,
     );
@@ -62,7 +65,10 @@ export function typecheck(scriptPath) {
 
   const tmpDir = mkdtempSync(path.join(tmpdir(), 'tsxmts-typecheck-'));
   try {
-    const basename = path.basename(absPath);
+    // tsc only recognizes source files by extension, so an extensionless
+    // script's copy needs one appended for tsc to check it at all.
+    const basename =
+      ext === '' ? `${path.basename(absPath)}.mts` : path.basename(absPath);
     writeFileSync(path.join(tmpDir, basename), rewritten);
     writeFileSync(
       path.join(tmpDir, 'package.json'),

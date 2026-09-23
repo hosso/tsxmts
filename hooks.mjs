@@ -1,10 +1,12 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { register } from 'node:module';
 import { homedir } from 'node:os';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
+import { transform } from 'esbuild';
 import { parseSpecifier, versionRequiredMessage } from './parse-specifier.mjs';
 
 export { parseSpecifier };
@@ -66,4 +68,27 @@ export async function resolve(specifier, context, nextResolve) {
   // instead of falling back to CJS-only resolution.
   const parentURL = pathToFileURL(path.join(dir, 'node_modules', '_.js')).href;
   return nextResolve(name + subpath, { ...context, parentURL });
+}
+
+// A script distributed as a `chmod +x` executable (installed into a PATH
+// directory under a plain name, no `.mts`/`.mjs` suffix) can't be told apart
+// from plain JS by extension the way tsx tells the two apart — and tsx's own
+// esbuild-based loader falls back to plain JS for an extensionless file, so
+// TypeScript syntax in it fails to parse. Transform it here instead, always
+// as TypeScript, the same way tsxmts already treats `.mts`.
+export async function load(url, context, nextLoad) {
+  if (!url.startsWith('file://')) return nextLoad(url, context);
+
+  const filePath = fileURLToPath(url);
+  if (path.extname(filePath) !== '') return nextLoad(url, context);
+
+  const source = await readFile(filePath, 'utf8');
+  const { code } = await transform(source, {
+    loader: 'ts',
+    format: 'esm',
+    sourcefile: filePath,
+    target: `node${process.versions.node}`,
+    sourcemap: 'inline',
+  });
+  return { format: 'module', source: code, shortCircuit: true };
 }
