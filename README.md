@@ -94,6 +94,7 @@ console.log(pc.green('it just works'));
 ```
 
 `tsxmts typecheck my-tool` works the same way, no extension needed.
+[`examples/qr`](examples/qr) is a real script written this way.
 
 Inside the script, import any npm package with an explicit version using the
 `npm:` specifier (matching [Deno's `npm:` specifier](https://docs.deno.com/examples/npm/)):
@@ -198,13 +199,14 @@ takes effect while your editor's TypeScript is still running the classic
 
 ## Examples
 
-- [`examples/qr.mts`](examples/qr.mts) — the simplest shape for a `tsxmts`
-  script: one dependency, `minimist` argument parsing, and a `--help`/usage
-  message. Prints a scannable QR code to the terminal.
+- [`examples/qr`](examples/qr) — the simplest shape for a `tsxmts` script:
+  one dependency, `minimist` argument parsing, and a `--help`/usage message.
+  Prints a scannable QR code to the terminal. No extension on this one, on
+  purpose — it's still TypeScript.
 
   ```sh
-  ./examples/qr.mts "https://example.com"
-  ./examples/qr.mts --help
+  ./examples/qr "https://example.com"
+  ./examples/qr --help
   ```
 
 - [`examples/gh-repos.mts`](examples/gh-repos.mts) — TypeScript. Looks up a
